@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: layout(~{::title}, ~{::section})}">
+<head>
+    <title>Home - College Events</title>
+</head>
+<body>
+    <section>
+        <!-- Hero Section -->
+        <!-- Hero Section -->
+<div class="hero-section mb-5" style="background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.pexels.com/photos/30938184/pexels-photo-30938184.jpeg') center/cover no-repeat; color: white;">
+    <div class="container py-5">
+        <div class="row align-items-center">
+            <div class="col-md-6 animate-fade-in-up">
+                <h1 class="display-4 fw-bold mb-4">College Events & Activities</h1>
+                <p class="lead mb-4">Stay connected with all the exciting events happening in our college. Register, participate, and make memories!</p>
+                <div class="d-flex gap-3">
+                    <a th:href="@{/events}" class="btn btn-light btn-lg px-4">Browse Events</a>
+                    <a th:if="${session.user_id == null}" th:href="@{/register}" class="btn btn-outline-light btn-lg px-4">Join Now</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+        <!-- Featured Events Section -->
+        <div class="container mb-5">
+            <h2 class="text-center mb-4">Upcoming Events</h2>
+            <div class="row g-4">
+                <div th:each="event : ${upcomingEvents}" class="col-md-4">
+                    <div class="event-card">
+                        <div class="card gradient-border h-100">
+                            <div class="event-date">
+                                <h3 class="mb-0" th:text="${#temporals.format(event.eventDate, 'MMM dd')}">Jan 01</h3>
+                                <small th:text="${#temporals.format(event.eventDate, 'yyyy')}">2025</small>
+                            </div>
+                            <div class="card-body">
+                                <h5 class="card-title" th:text="${event.title}">Event Title</h5>
+                                <p class="card-text" th:text="${#strings.abbreviate(event.description, 100)}">Description</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="venue">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        <span th:text="${event.venue}">Venue</span>
+                                    </span>
+                                    <div th:id="'countdown-' + ${event.id}" th:data-countdown="${event.eventDate}" class="countdown small"></div>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-transparent border-0">
+                                <a th:href="@{/events/{id}(id=${event.id})}" class="btn btn-gradient-primary w-100">View Details</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center mt-4">
+                <a th:href="@{/events}" class="btn btn-gradient-primary btn-lg">View All Events</a>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <div class="container-fluid bg-light py-9">
+            <div class="container">
+                <h2 class="text-center mb-5">Why Join Our Platform?</h2>
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <div class="stat-card text-center">
+                            <i class="fas fa-calendar-alt fa-3x mb-3 text-white"></i>
+                            <h3>Easy Registration</h3>
+                            <p>Register for events with just a few clicks and manage your participations effortlessly.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stat-card text-center">
+                            <i class="fas fa-bell fa-3x mb-3 text-white"></i>
+                            <h3>Stay Updated</h3>
+                            <p>Get instant notifications about new events, updates, and important announcements.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stat-card text-center">
+                            <i class="fas fa-users fa-3x mb-3 text-white"></i>
+                            <h3>Let's Participate</h3>
+                            <p>Join events, connect with peers, and make the most of your college experience.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- College Events Section -->
+<section class="college-events-section py-19 bg-light">
+    <div class="container">
+        <h2 class="text-center mb-5">College Events & Activities</h2>
+        
+        <div class="row g-4 text-center mb-4">
+            <!-- Card 1: Fests -->
+            <div class="col-md-4">
+                <div class="card border-0">
+                    <img src="https://images.pexels.com/photos/1000445/pexels-photo-1000445.jpeg" alt="Fest" style="height:200px; object-fit:cover;">
+                    <div class="card-body">
+                        <h5 class="card-title">Fests & Celebrations</h5>
+                        <p class="card-text fst-italic">“Where memories are made and joy is shared.”</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Card 2: Parties -->
+            <div class="col-md-4">
+                <div class="card border-0">
+                    <img src="https://images.pexels.com/photos/3171837/pexels-photo-3171837.jpeg" class="card-img-top" alt="Party" style="height:200px; object-fit:cover;">
+                    <div class="card-body">
+                        <h5 class="card-title">Parties & Socials</h5>
+                        <p class="card-text fst-italic">“Good vibes, great friends, unforgettable nights.”</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Card 3: Cultural Events -->
+            <div class="col-md-4">
+                <div class="card border-0">
+                    <img src="https://images.pexels.com/photos/8819343/pexels-photo-8819343.jpeg" style="height:200px; object-fit:cover;">
+                    <div class="card-body">
+                        <h5 class="card-title">Cultural Activities</h5>
+                        <p class="card-text fst-italic">“Embrace diversity, celebrate creativity.”</p>
+                    </div>
+                </div>
+            </div>
+            
+
+        </div>
+        
+        <div class="row g-4 text-center">
+            <!-- Card 4: Sports -->
+            <div class="col-md-4">
+                <div class="card border-0">
+                    <img src="https://images.pexels.com/photos/248547/pexels-photo-248547.jpeg" class="card-img-top" alt="Sports" style="height:200px; object-fit:cover;">
+                    <div class="card-body">
+                        <h5 class="card-title">Sports & Competitions</h5>
+                        <p class="card-text fst-italic">“Push limits, embrace teamwork, achieve greatness.”</p>
+                    </div>
+                </div>
+            </div>
+           
+            
+            <!-- Card 5: Project Exhibitions -->
+            <div class="col-md-4">
+                <div class="card border-0">
+                    <img src="https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg" class="card-img-top" alt="Projects" style="height:200px; object-fit:cover;">
+                    <div class="card-body">
+                        <h5 class="card-title">Project Exhibitions</h5>
+                        <p class="card-text fst-italic">“Ideas come alive, innovation shines bright.”</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Card 6: Fun & Enjoyment -->
+            <div class="col-md-4">
+                <div class="card border-0">
+                    <img src="https://images.pexels.com/photos/433452/pexels-photo-433452.jpeg" class="card-img-top" alt="Fun" style="height:200px; object-fit:cover;">
+                    <div class="card-body">
+                        <h5 class="card-title">Fun & Enjoyment</h5>
+                        <p class="card-text fst-italic">“Laugh, connect, and cherish every moment.”</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+                            <!-- Paragraph between the rows -->
+<div class="container my-4">
+    <p class="text-center lead">
+        “Beyond the stage and the sports ground, our college thrives with creativity, innovation, and fun. Explore the activities that make every student’s journey unforgettable!”
+    </p>
+</div>
+</section>
+
+        
+        <script>
+            // Counter animation
+            document.querySelectorAll('.counter-up').forEach(counter => {
+                const target = parseInt(counter.innerText);
+                const duration = 2000; // 2 seconds
+                const step = target / (duration / 16); // 60fps
+                let current = 0;
+                
+                const updateCounter = () => {
+                    current += step;
+                    if (current < target) {
+                        counter.innerText = Math.floor(current);
+                        requestAnimationFrame(updateCounter);
+                    } else {
+                        counter.innerText = target;
+                    }
+                };
+                
+                // Start animation when element comes into view
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            updateCounter();
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                });
+                
+                observer.observe(counter);
+            });
+        </script>
+    </section>
+</body>
+</html>

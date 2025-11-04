@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: layout(~{::title}, ~{::section})}">
+<head>
+    <title>400 Bad Request - College Events</title>
+</head>
+<body>
+    <section class="py-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 text-center">
+                    <div class="error-page animate-fade-in-up">
+                        <i class="fas fa-exclamation-triangle fa-5x text-warning mb-4"></i>
+                        <h1 class="display-1 fw-bold text-gradient">400</h1>
+                        <h2 class="mb-4">Bad Request</h2>
+                        <p class="lead mb-4" th:text="${error}">There was an error processing your request.</p>
+                        <div class="d-grid gap-3 d-sm-flex justify-content-sm-center">
+                            <a href="javascript:history.back()" class="btn btn-gradient-primary btn-lg px-4 me-sm-3">
+                                <i class="fas fa-arrow-left me-2"></i> Go Back
+                            </a>
+                            <a th:href="@{/}" class="btn btn-outline-light btn-lg px-4">
+                                <i class="fas fa-home me-2"></i> Home
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>

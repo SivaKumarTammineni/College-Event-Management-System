@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: layout(~{::title}, ~{::section})}">
+<head>
+    <title th:text="${event.id} ? 'Edit Event' : 'Create Event'">Event Form</title>
+</head>
+<body>
+    <section class="py-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="gradient-form animate-fade-in-up">
+                        <!-- Form Header -->
+                        <div class="text-center mb-4">
+                            <i class="fas fa-calendar-plus fa-3x text-primary mb-3"></i>
+                            <h2 class="fw-bold" th:text="${event.id} ? 'Edit Event' : 'Create New Event'">Event Form</h2>
+                            <p class="text-muted">Fill in the details below to create a new event</p>
+                        </div>
+
+                        <!-- Event Form -->
+                        <form th:action="${event.id} ? @{/events/{id}(id=${event.id})} : @{/events}" 
+                              method="post" 
+                              enctype="multipart/form-data"
+                              data-validate="true"
+                              class="needs-validation"
+                              novalidate>
+
+                            <div class="row g-3">
+                                <!-- Event Title -->
+                                <div class="col-12">
+                                    <label for="title" class="form-label">Event Title</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-heading"></i></span>
+                                        <input type="text" 
+                                               class="form-control" 
+                                               id="title" 
+                                               name="title"
+                                               th:value="${event.title}"
+                                               required
+                                               placeholder="Enter event title">
+                                    </div>
+                                    <div class="invalid-feedback">Please provide an event title</div>
+                                </div>
+
+                                <!-- Event Description -->
+                                <div class="col-12">
+                                    <label for="description" class="form-label">Description</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-align-left"></i></span>
+                                        <textarea class="form-control" 
+                                                  id="description" 
+                                                  name="description"
+                                                  rows="5"
+                                                  required
+                                                  placeholder="Provide event details"
+                                                  th:text="${event.description}"></textarea>
+                                    </div>
+                                    <div class="invalid-feedback">Please provide event description</div>
+                                </div>
+
+                                <!-- Event Date and Time -->
+                                <div class="col-md-6">
+                                    <label for="eventDate" class="form-label">Event Date</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-calendar"></i></span>
+                                        <input type="date" 
+                                               class="form-control" 
+                                               id="eventDate" 
+                                               name="eventDate"
+                                               th:value="${event.eventDate} ? ${#temporals.format(event.eventDate, 'yyyy-MM-dd')} : ''"
+                                               pattern="\d{4}-\d{2}-\d{2}"
+                                               required>
+                                    </div>
+                                    <div class="form-text">Format: YYYY-MM-DD</div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="eventTime" class="form-label">Event Time</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-clock"></i></span>
+                                        <input type="time" 
+                                               class="form-control" 
+                                               id="eventTime" 
+                                               name="eventTime"
+                                               th:value="${event.eventDate} ? ${#temporals.format(event.eventDate, 'HH:mm')} : ''"
+                                               required>
+                                    </div>
+                                </div>
+
+                                <!-- Venue -->
+                                <div class="col-md-6">
+                                    <label for="venue" class="form-label">Venue</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                                        <input type="text" 
+                                               class="form-control" 
+                                               id="venue" 
+                                               name="venue"
+                                               th:value="${event.venue}"
+                                               required
+                                               placeholder="Enter event venue">
+                                    </div>
+                                </div>
+
+                                <!-- Max Participants -->
+                                <div class="col-md-6">
+                                    <label for="maxParticipants" class="form-label">Maximum Participants</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-users"></i></span>
+                                        <input type="number" 
+                                               class="form-control" 
+                                               id="maxParticipants" 
+                                               name="maxParticipants"
+                                               th:value="${event.maxParticipants}"
+                                               min="1"
+                                               required
+                                               placeholder="Enter max participants">
+                                    </div>
+                                </div>
+
+                                <!-- Event Image -->
+                                <div class="col-12">
+                                    <label for="imageFile" class="form-label">Event Image</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-image"></i></span>
+                                        <input type="file" 
+                                               class="form-control" 
+                                               id="imageFile" 
+                                               name="imageFile"
+                                               accept="image/*"
+                                               data-preview="true">
+                                    </div>
+                                    <div class="mt-2" th:if="${event.imageUrl}">
+                                        <p class="small">Current image:</p>
+                                        <img th:src="${event.imageUrl}" 
+                                             alt="Current event image" 
+                                             class="img-thumbnail" 
+                                             style="max-height: 150px">
+                                    </div>
+                                    <div class="mt-2 d-none" id="imagePreviewContainer">
+                                        <p class="small">Preview:</p>
+                                        <img id="imagePreview" 
+                                             src="#" 
+                                             alt="Image preview" 
+                                             class="img-thumbnail" 
+                                             style="max-height: 150px">
+                                    </div>
+                                </div>
+
+                                <!-- Submit Buttons -->
+                                <div class="col-12">
+                                    <div class="d-grid gap-2">
+                                        <button type="submit" class="btn btn-gradient-primary btn-lg">
+                                            <i class="fas fa-save me-2"></i>
+                                            <span th:text="${event.id} ? 'Update Event' : 'Create Event'">Submit</span>
+                                        </button>
+                                        <a th:href="@{/events}" class="btn btn-light btn-lg">
+                                            <i class="fas fa-times me-2"></i> Cancel
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script th:inline="javascript">
+        // Image preview functionality
+        document.getElementById('imageFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const preview = document.getElementById('imagePreview');
+            const container = document.getElementById('imagePreviewContainer');
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    container.classList.remove('d-none');
+                }
+                reader.readAsDataURL(file);
+            } else {
+                container.classList.add('d-none');
+            }
+        });
+
+        // Form validation
+        document.querySelector('form').addEventListener('submit', function(e) {
+            if (!this.checkValidity()) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            this.classList.add('was-validated');
+        });
+
+        // Date validation
+        const eventDate = document.getElementById('eventDate');
+        const today = new Date().toISOString().split('T')[0];
+        eventDate.setAttribute('min', today);
+    </script>
+</body>
+</html>
