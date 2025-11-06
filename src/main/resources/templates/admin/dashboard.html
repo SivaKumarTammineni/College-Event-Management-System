@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard | Event Management System</title>
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .dashboard-header {
+            background-color: #212529;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 0 0 10px 10px;
+        }
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .stats-card {
+            text-align: center;
+            padding: 1rem;
+        }
+        .stats-card h3 {
+            margin: 0.5rem 0;
+            font-weight: bold;
+        }
+        .table th {
+            background-color: #e9ecef;
+        }
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            color: #888;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="dashboard-header d-flex justify-content-between align-items-center">
+        <h2>Admin Dashboard</h2>
+        <div>
+            <span th:text="'Welcome, ' + ${user.fullName}"></span>
+            <a href="/logout" class="btn btn-sm btn-outline-light ms-3">Logout</a>
+        </div>
+    </header>
+
+    <main class="container mt-4">
+        <!-- Stats Overview -->
+        <div class="row g-3">
+            <div class="col-md-3" th:each="entry : ${stats}">
+                <div class="card stats-card">
+                    <div class="card-body">
+                        <h6 th:text="${entry.key.replaceAll('([A-Z])', ' $1')}"></h6>
+                        <h3 th:text="${entry.value}"></h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Events -->
+        <div class="mt-4">
+            <h4>Recent Events</h4>
+            <table class="table table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <th>Event ID</th>
+                        <th>Name</th>
+                        <th>Created By</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="event : ${recentEvents}">
+                        <td th:text="${event.id}"></td>
+                        <td th:text="${event.name}"></td>
+                        <td th:text="${event.createdBy}"></td>
+                        <td th:text="${#temporals.format(event.eventDate, 'dd MMM yyyy')}"></td>
+                        <td>
+                          
+							<span th:text="${event.status}"
+							      th:classappend="${event.status == 'APPROVED'} ? 'badge bg-success' : (${event.status == 'REJECTED'} ? 'badge bg-danger' : 'badge bg-warning text-dark')">
+							</span>
+
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(recentEvents)}">
+                        <td colspan="5" class="text-center text-muted">No recent events found.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Recent Registrations -->
+        <div class="mt-5">
+            <h4>Recent Registrations</h4>
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Registration ID</th>
+                        <th>User</th>
+                        <th>Event</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="reg : ${recentRegistrations}">
+                        <td th:text="${reg.id}"></td>
+                        <td th:text="${reg.user.fullName}"></td>
+                        <td th:text="${reg.event.name}"></td>
+                        <td th:text="${#temporals.format(reg.registrationDate, 'dd MMM yyyy HH:mm')}"></td>
+                        <td>
+							<span th:text="${reg.status}"
+							      th:classappend="${reg.status == 'APPROVED'} ? 'badge bg-success' : (${reg.status == 'REJECTED'} ? 'badge bg-danger' : 'badge bg-warning text-dark')">
+							</span>
+
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(recentRegistrations)}">
+                        <td colspan="5" class="text-center text-muted">No recent registrations found.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pending Approvals -->
+        <div class="mt-5">
+            <h4>Pending Approvals</h4>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Registration ID</th>
+                        <th>User</th>
+                        <th>Event</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="pending : ${pendingApprovals}">
+                        <td th:text="${pending.id}"></td>
+                        <td th:text="${pending.user.fullName}"></td>
+                        <td th:text="${pending.event.name}"></td>
+                        <td>
+                            <form th:action="@{'/admin/registrations/' + ${pending.id} + '/status'}" method="post" style="display:inline">
+                                <input type="hidden" name="status" value="APPROVED">
+                                <button type="submit" class="btn btn-success btn-sm">Approve</button>
+                            </form>
+                            <form th:action="@{'/admin/registrations/' + ${pending.id} + '/status'}" method="post" style="display:inline">
+                                <input type="hidden" name="status" value="REJECTED">
+                                <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(pendingApprovals)}">
+                        <td colspan="4" class="text-center text-muted">No pending approvals.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer mt-5">
+            <p>© 2025 Event Management System | Built with Spring Boot + Thymeleaf</p>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

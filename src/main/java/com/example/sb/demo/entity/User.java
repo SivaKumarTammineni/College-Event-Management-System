@@ -55,10 +55,10 @@ public class User {
 	public void setDepartment(String department) {
 		this.department = department;
 	}
-	public String getYear() {
+	public Integer getYear() {
 		return year;
 	}
-	public void setYear(String year) {
+	public void setYear(Integer year) {
 		this.year = year;
 	}
 	@Id
@@ -83,5 +83,5 @@ public class User {
     // Additional fields for students
     private String studentId;
     private String department;
-    private String year;
+    private Integer year;
 }

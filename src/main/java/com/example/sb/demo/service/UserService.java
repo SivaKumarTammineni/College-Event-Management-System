@@ -1,6 +1,5 @@
 package com.example.sb.demo.service;
 
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -18,19 +17,21 @@ import com.example.sb.demo.repository.UserRepository;
 
 import jakarta.servlet.http.HttpSession;
 
-
 @Service
-
 public class UserService {
-	 
+
     private final UserRepository userRepository;
+    private static final String USER_SESSION_KEY = "user_id";
+    private static final String USER_ROLE_KEY = "user_role";
+
     @Autowired
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
-    private static final String USER_SESSION_KEY = "user_id";
-    private static final String USER_ROLE_KEY = "user_role";
 
+    // ==============================
+    // STUDENT REGISTRATION
+    // ==============================
     @Transactional
     public User registerUser(RegisterRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) {
@@ -42,31 +43,83 @@ public class UserService {
 
         User user = new User();
         user.setUsername(request.getUsername());
-        user.setPassword(request.getPassword()); // In production, hash the password
+        user.setPassword(request.getPassword()); // ⚠️ Should be hashed in production
         user.setEmail(request.getEmail());
         user.setFullName(request.getFullName());
         user.setStudentId(request.getStudentId());
         user.setDepartment(request.getDepartment());
         user.setYear(request.getYear());
-        user.setRole("STUDENT"); // Default role for registration
+        user.setRole("STUDENT"); // Force role for normal registration
 
         return userRepository.save(user);
     }
 
+    // ==============================
+    // ADMIN REGISTRATION
+    // ==============================
+    @Transactional
+    public User registerAdmin(RegisterRequest request) {
+        if (userRepository.existsByUsername(request.getUsername())) {
+            throw new RuntimeException("Username already exists");
+        }
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new RuntimeException("Email already exists");
+        }
+
+        User user = new User();
+        user.setUsername(request.getUsername());
+        user.setPassword(request.getPassword());
+        user.setEmail(request.getEmail());
+        user.setFullName(request.getFullName());
+        user.setDepartment(request.getDepartment());
+        user.setYear(request.getYear());
+        user.setRole("ADMIN"); // ✅ Important
+
+        return userRepository.save(user);
+    }
+
+
+    // ==============================
+    // LOGIN + SESSION MANAGEMENT
+    // ==============================
     public Optional<User> authenticateUser(LoginRequest request) {
         return userRepository.findByUsername(request.getUsername())
-                .filter(user -> user.getPassword().equals(request.getPassword())); // In production, use proper password hashing
+                .filter(user -> user.getPassword().equals(request.getPassword()));
     }
 
+//    public void login(HttpSession session, User user) {
+//        session.setAttribute(USER_SESSION_KEY, user.getId());
+//        session.setAttribute(USER_ROLE_KEY, user.getRole());
+//    }
+    
     public void login(HttpSession session, User user) {
-        session.setAttribute(USER_SESSION_KEY, user.getId());
-        session.setAttribute(USER_ROLE_KEY, user.getRole());
+        session.setAttribute("user", user);
+        session.setAttribute("user_role", user.getRole());
     }
 
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public void logout(HttpSession session) {
+        session.invalidate();
     }
 
+//    public Optional<User> getCurrentUser(HttpSession session) {
+//        Object userId = session.getAttribute(USER_SESSION_KEY);
+//        if (userId != null) {
+//            return userRepository.findById((Long) userId);
+//        }
+//        return Optional.empty();
+//    }
+    
+    public Optional<User> getCurrentUser(HttpSession session) {
+        Object userObj = session.getAttribute("user");
+        if (userObj instanceof User user) {
+            return Optional.of(user);
+        }
+        return Optional.empty();
+    }
+
+    // ==============================
+    // ADMIN OPERATIONS
+    // ==============================
     @Transactional
     public User updateUserRole(Long userId, String role, User admin) {
         if (!isAdmin(admin)) {
@@ -75,7 +128,7 @@ public class UserService {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        
+
         if (user.getId().equals(admin.getId())) {
             throw new RuntimeException("Cannot modify your own role");
         }
@@ -92,27 +145,22 @@ public class UserService {
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        
+
         if (user.getId().equals(admin.getId())) {
             throw new RuntimeException("Cannot modify your own status");
         }
 
-        // Add an 'active' field to User entity and implement this
+        // If you add `active` field in User entity, uncomment this:
         // user.setActive(active);
+
         return userRepository.save(user);
     }
 
-    public void logout(HttpSession session) {
-        session.removeAttribute(USER_SESSION_KEY);
-        session.invalidate();
-    }
-
-    public Optional<User> getCurrentUser(HttpSession session) {
-        Object userId = session.getAttribute(USER_SESSION_KEY);
-        if (userId != null) {
-            return userRepository.findById((Long) userId);
-        }
-        return Optional.empty();
+    // ==============================
+    // UTILITIES
+    // ==============================
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
     }
 
     public List<String> getAllDepartments() {
@@ -123,20 +171,15 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Repository doesn't track created date on User. For now return all users
-     * so controllers that ask for date-range reports don't fail. This is a
-     * lightweight compatibility shim.
-     */
     public List<User> getUsersByDateRange(LocalDateTime start, LocalDateTime end) {
         return getAllUsers();
     }
 
     public boolean isAdmin(User user) {
-        return "ADMIN".equals(user.getRole());
+        return "ADMIN".equalsIgnoreCase(user.getRole());
     }
 
     public boolean isStudent(User user) {
-        return "STUDENT".equals(user.getRole());
+        return "STUDENT".equalsIgnoreCase(user.getRole());
     }
 }

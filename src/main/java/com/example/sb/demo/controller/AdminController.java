@@ -1,12 +1,13 @@
 package com.example.sb.demo.controller;
 
-import com.example.sb.demo.entity.Event;
-import com.example.sb.demo.entity.Registration;
-import com.example.sb.demo.entity.User;
-import com.example.sb.demo.service.EventService;
-import com.example.sb.demo.service.RegistrationService;
-import com.example.sb.demo.service.UserService;
-import jakarta.servlet.http.HttpSession;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -15,15 +16,22 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import com.example.sb.demo.entity.Event;
+import com.example.sb.demo.entity.Registration;
+import com.example.sb.demo.entity.User;
+import com.example.sb.demo.service.EventService;
+import com.example.sb.demo.service.RegistrationService;
+import com.example.sb.demo.service.UserService;
+
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("/admin")
@@ -44,14 +52,23 @@ public class AdminController {
     }
 
     private User getCurrentAdmin(HttpSession session) {
-        User user = userService.getCurrentUser(session)
-                .orElseThrow(() -> new RuntimeException("Not authenticated"));
-        if (!userService.isAdmin(user)) {
-            throw new RuntimeException("Unauthorized access");
+        Optional<User> userOpt = userService.getCurrentUser(session);
+
+        if (userOpt.isEmpty()) {
+            throw new RuntimeException("You are not logged in. Please login as admin.");
         }
-        session.setAttribute("isAdmin", true); // For Thymeleaf security checks
+
+        User user = userOpt.get();
+
+        if (!userService.isAdmin(user)) {
+            throw new RuntimeException("Access denied. Admin privileges required.");
+        }
+
+        session.setAttribute("isAdmin", true);
         return user;
     }
+
+
 
     @ModelAttribute
     public void addCommonAttributes(Model model, HttpSession session) {

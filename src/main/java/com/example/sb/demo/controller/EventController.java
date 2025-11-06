@@ -1,7 +1,10 @@
 package com.example.sb.demo.controller;
 
 import java.io.IOException;
-import java.nio.file.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.UUID;
@@ -9,7 +12,11 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -130,20 +137,48 @@ public class EventController {
         return "/" + uploadDir + "/" + fileName;
     }
 
+//    @GetMapping("/events/{id}/edit")
+//    public String editEventForm(@PathVariable Long id, Model model, HttpSession session) {
+//        User user = getCurrentUser(session);
+//        Event event = eventService.getEventById(id);
+//
+//        if (!user.getRole().equals("ADMIN") && !event.getCreatedBy().getId().equals(user.getId())) {
+//            throw new RuntimeException("Not authorized to edit this event");
+//        }
+//
+//        model.addAttribute("event", event);
+//        return "events/form";
+//    }
+    
     @GetMapping("/events/{id}/edit")
-    public String editEventForm(@PathVariable Long id, Model model, HttpSession session) {
-        User user = getCurrentUser(session);
-        Event event = eventService.getEventById(id);
+    public String editEventForm(@PathVariable Long id, 
+                                Model model, 
+                                HttpSession session, 
+                                RedirectAttributes redirectAttributes) {
+        try {
+            User user = getCurrentUser(session);
+            Event event = eventService.getEventById(id);
 
-        if (!user.getRole().equals("ADMIN") && !event.getCreatedBy().getId().equals(user.getId())) {
-            throw new RuntimeException("Not authorized to edit this event");
+            // ✅ Fix: safer and cleaner authorization check
+            boolean isAdmin = "ADMIN".equalsIgnoreCase(user.getRole());
+            boolean isCreator = event.getCreatedBy() != null && event.getCreatedBy().getId().equals(user.getId());
+
+            if (!isAdmin && !isCreator) {
+                redirectAttributes.addFlashAttribute("errorMessage", "You are not authorized to edit this event.");
+                return "redirect:/events";
+            }
+
+            model.addAttribute("event", event);
+            return "events/form";
+
+        } catch (RuntimeException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+            return "redirect:/events";
         }
-
-        model.addAttribute("event", event);
-        return "events/form";
     }
 
-    @PostMapping("/events/{id}")
+
+    @GetMapping("/events/{id}")
     public String updateEvent(@PathVariable Long id, @ModelAttribute Event event,
                               HttpSession session, RedirectAttributes redirectAttributes) {
         try {

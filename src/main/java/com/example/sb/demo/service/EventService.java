@@ -75,11 +75,11 @@ public class EventService {
         return eventRepository.save(event);
     }
 
-    @Transactional
-    public Event createEvent(Event event, User user) {
-        event.setCreatedBy(user);
-        return eventRepository.save(event);
-    }
+//    @Transactional
+//    public Event createEvent(Event event, User user) {
+//        event.setCreatedBy(user);
+//        return eventRepository.save(event);
+//    }
 
     @Transactional
     public Event updateEvent(Long id, Event eventDetails, User user) {
@@ -115,4 +115,12 @@ public class EventService {
     private boolean isAuthorizedToModify(Event event, User user) {
         return user.getRole().equals("ADMIN") || event.getCreatedBy().getId().equals(user.getId());
     }
+    
+    @Transactional
+    public Event createEvent(Event event, User creator) {
+        event.setCreatedBy(creator); // ✅ Important for ownership
+        event.setCreatedAt(LocalDateTime.now());
+        return eventRepository.save(event);
+    }
+
 }

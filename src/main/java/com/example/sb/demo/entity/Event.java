@@ -126,8 +126,18 @@ public class Event {
     private LocalDateTime updatedAt;
 
     private String status; // PENDING, APPROVED, REJECTED
+    
+    private String name;
 
-    @PrePersist
+    public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	@PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
         if (status == null) {
@@ -139,4 +149,6 @@ public class Event {
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
+    
+
 }
