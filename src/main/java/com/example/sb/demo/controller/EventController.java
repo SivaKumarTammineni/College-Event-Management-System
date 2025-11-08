@@ -9,7 +9,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,7 +35,7 @@ public class EventController {
     private final RegistrationService registrationService;
 
     // ✅ Constructor-based dependency injection for all required services
-    @Autowired
+
     public EventController(EventService eventService,
                            UserService userService,
                            RegistrationService registrationService) {

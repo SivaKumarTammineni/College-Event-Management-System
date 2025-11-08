@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,7 +19,7 @@ public class EventService {
 	  private final EventRepository eventRepository;
 
 	    // ✅ Constructor Injection (preferred)
-	    @Autowired
+	   
 	    public EventService(EventRepository eventRepository) {
 	        this.eventRepository = eventRepository;
 	    }

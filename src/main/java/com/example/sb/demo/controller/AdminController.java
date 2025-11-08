@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -42,7 +41,7 @@ public class AdminController {
     private final RegistrationService registrationService;
 
     // ✅ Constructor injection (manual version of @RequiredArgsConstructor)
-    @Autowired
+    
     public AdminController(UserService userService,
                            EventService eventService,
                            RegistrationService registrationService) {
