@@ -5,240 +5,208 @@
     <title>Events - College Events</title>
 </head>
 <body>
-    <section class="py-5">
-        <div class="container">
-            <!-- Page Header -->
-            <div class="row align-items-center mb-4">
-                <div class="col-md-6">
-                    <h2 class="fw-bold mb-0">College Events</h2>
-                    <p class="text-muted">Browse and register for upcoming events</p>
+<section class="py-5">
+    <div class="container">
+
+        <!-- Page Header -->
+        <div class="row align-items-center mb-4">
+            <div class="col-md-6">
+                <h2 class="fw-bold mb-0">College Events</h2>
+                <p class="text-muted">Browse and register for upcoming events</p>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <div class="d-flex justify-content-md-end gap-2">
+                    <!-- Filter Dropdown -->
+                    <div class="dropdown">
+                        <button class="btn btn-outline-primary dropdown-toggle" type="button" id="filterDropdown"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-filter"></i> Filter
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" data-filter="all">All Events</a></li>
+                            <li><a class="dropdown-item" href="#" data-filter="upcoming">Upcoming Events</a></li>
+                            <li><a class="dropdown-item" href="#" data-filter="registered">My Registrations</a></li>
+                            <li th:if="${user != null}">
+                                <a class="dropdown-item" href="#" data-filter="created">Created by Me</a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- ✅ Always Visible Create Event Button -->
+                    <a th:href="@{/events/new}" class="btn btn-gradient-primary">
+                        <i class="fas fa-plus"></i> Create Event
+                    </a>
                 </div>
-                <div class="col-md-6 text-md-end">
-                    <div class="d-flex justify-content-md-end gap-2">
-                        <div class="dropdown">
-                            <button class="btn btn-outline-primary dropdown-toggle" type="button" id="filterDropdown" 
-                                    data-bs-toggle="dropdown">
-                                <i class="fas fa-filter"></i> Filter
-                            </button>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="#" data-filter="all">All Events</a></li>
-                                <li><a class="dropdown-item" href="#" data-filter="upcoming">Upcoming Events</a></li>
-                                <li><a class="dropdown-item" href="#" data-filter="registered">My Registrations</a></li>
-                                <li th:if="${isAdmin}">
-                                    <a class="dropdown-item" href="#" data-filter="created">Created by Me</a>
-                                </li>
-                            </ul>
+            </div>
+        </div>
+
+        <!-- Search and Sort -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-8">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                    <input type="text" class="form-control" id="searchEvents"
+                           placeholder="Search events by title, description, or venue...">
+                </div>
+            </div>
+            <div class="col-md-4">
+                <select class="form-select" id="sortEvents">
+                    <option value="date-asc">Date (Ascending)</option>
+                    <option value="date-desc">Date (Descending)</option>
+                    <option value="title-asc">Title (A-Z)</option>
+                    <option value="title-desc">Title (Z-A)</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Events Grid -->
+        <div class="row g-4 event-container">
+            <div th:each="event : ${events}" class="col-md-6 col-lg-4">
+                <div class="event-card animate-fade-in-up">
+                    <div class="card gradient-border h-100">
+                        <div class="event-date">
+                            <h3 class="mb-0" th:text="${#temporals.format(event.eventDate, 'MMM dd')}">Jan 01</h3>
+                            <small th:text="${#temporals.format(event.eventDate, 'yyyy')}">2025</small>
                         </div>
-                        <a th:href="@{/events/new}" class="btn btn-gradient-primary">
-                            <i class="fas fa-plus"></i> Create Event
-                        </a>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Search and Filters -->
-            <div class="row g-3 mb-4">
-                <div class="col-md-8">
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="fas fa-search"></i></span>
-                        <input type="text" class="form-control" id="searchEvents" 
-                               placeholder="Search events by title, description, or venue...">
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <select class="form-select" id="sortEvents">
-                        <option value="date-asc">Date (Ascending)</option>
-                        <option value="date-desc">Date (Descending)</option>
-                        <option value="title-asc">Title (A-Z)</option>
-                        <option value="title-desc">Title (Z-A)</option>
-                    </select>
-                </div>
-            </div>
+                        <!-- Event Image -->
+                        <div class="event-image" th:if="${event.imageUrl}">
+                            <img th:src="${event.imageUrl}" class="card-img-top" alt="Event Image">
+                        </div>
 
-            <!-- Events Grid -->
-            <div class="row g-4 event-container">
-                <div th:each="event : ${events}" class="col-md-6 col-lg-4">
-                    <div class="event-card animate-fade-in-up">
-                        <div class="card gradient-border h-100">
-                            <div class="event-date">
-                                <h3 class="mb-0" th:text="${#temporals.format(event.eventDate, 'MMM dd')}">Jan 01</h3>
-                                <small th:text="${#temporals.format(event.eventDate, 'yyyy')}">2025</small>
-                            </div>
-                            
-                            <!-- Event Image -->
-                            <div class="event-image" th:if="${event.imageUrl}">
-                                <img th:src="${event.imageUrl}" class="card-img-top" alt="Event Image">
-                            </div>
-                            
-                            <div class="card-body">
-                                <h5 class="card-title" th:text="${event.title}">Event Title</h5>
-                                <p class="card-text" th:text="${#strings.abbreviate(event.description, 150)}">Description</p>
-                                
-                                <div class="mb-3">
-                                    <span class="badge bg-primary me-2">
-                                        <i class="fas fa-map-marker-alt"></i>
-                                        <span th:text="${event.venue}">Venue</span>
-                                    </span>
-                                    <span class="badge bg-info">
-                                        <i class="fas fa-users"></i>
-                                        <span th:text="${event.maxParticipants + ' seats'}">50 seats</span>
-                                    </span>
-                                </div>
-                                
-                                <!-- Countdown Timer -->
-                                <div th:id="'countdown-' + ${event.id}" th:data-countdown="${event.eventDate}" 
-                                     class="countdown small mb-3"></div>
+                        <div class="card-body">
+                            <h5 class="card-title" th:text="${event.title}">Event Title</h5>
+                            <p class="card-text" th:text="${#strings.abbreviate(event.description, 150)}">Description</p>
 
-                                <!-- Created By -->
-                                <div class="small text-muted mb-3">
-                                    Created by: <span th:text="${event.createdBy.fullName}">John Doe</span>
-                                </div>
+                            <div class="mb-3">
+                                <span class="badge bg-primary me-2">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <span th:text="${event.venue}">Venue</span>
+                                </span>
+                                <span class="badge bg-info">
+                                    <i class="fas fa-users"></i>
+                                    <span th:text="${event.maxParticipants + ' seats'}">50 seats</span>
+                                </span>
                             </div>
 
-                            <!-- Card Footer with Actions -->
-                            <div class="card-footer bg-transparent border-0 pt-0">
-                                <div class="d-grid gap-2">
-                                    <a th:href="@{/events/{id}(id=${event.id})}" 
-                                       class="btn btn-gradient-primary">
-                                        <i class="fas fa-info-circle"></i> View Details
+                            <!-- Created By -->
+                            <div class="small text-muted mb-3">
+                                Created by: <span th:text="${event.createdBy.fullName}">John Doe</span>
+                            </div>
+                        </div>
+
+                        <!-- Card Footer with Actions -->
+                        <div class="card-footer bg-transparent border-0 pt-0">
+                            <div class="d-grid gap-2">
+
+                                <!-- View Details -->
+                                <a th:href="@{/events/{id}(id=${event.id})}" class="btn btn-gradient-primary">
+                                    <i class="fas fa-info-circle"></i> View Details
+                                </a>
+
+                                <!-- Register -->
+                                <form th:action="@{/events/{id}/register(id=${event.id})}" method="post" class="d-grid">
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fas fa-check-circle"></i> Register Now
+                                    </button>
+                                </form>
+
+                                <!-- Edit/Delete (Admin or Creator) -->
+                                <div th:if="${isAdmin or (user != null and user.id == event.createdBy.id)}"
+                                     class="btn-group mt-2">
+                                    <a th:href="@{/events/{id}/edit(id=${event.id})}"
+                                       class="btn btn-outline-primary">
+                                        <i class="fas fa-edit"></i> Edit
                                     </a>
-                                    
-                                    <!-- Edit/Delete Options for Admin or Creator -->
-                                    <div th:if="${isAdmin || user.id == event.createdBy.id}" 
-                                         class="btn-group">
-                                        <a th:href="@{/events/{id}/edit(id=${event.id})}" 
-                                           class="btn btn-outline-primary">
-                                            <i class="fas fa-edit"></i> Edit
-                                        </a>
-                                        <button type="button" 
-                                                class="btn btn-outline-danger"
-                                                th:data-event-id="${event.id}"
-                                                onclick="confirmDelete(this)">
-                                            <i class="fas fa-trash"></i> Delete
-                                        </button>
-                                    </div>
+                                    <button type="button"
+                                            class="btn btn-outline-danger"
+                                            th:data-event-id="${event.id}"
+                                            onclick="confirmDelete(this)">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
                                 </div>
+
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <!-- Loading Spinner -->
-            <div class="text-center mt-4 d-none" id="loadingSpinner">
-                <div class="loading-spinner"></div>
-                <p class="mt-2">Loading more events...</p>
-            </div>
         </div>
 
-        <!-- Delete Confirmation Modal -->
-        <div class="modal fade" id="deleteModal" tabindex="-1">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Confirm Delete</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        Are you sure you want to delete this event? This action cannot be undone.
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <form id="deleteForm" method="POST">
-                            <button type="submit" class="btn btn-danger">Delete Event</button>
-                        </form>
-                    </div>
+        <!-- Loading Spinner -->
+        <div class="text-center mt-4 d-none" id="loadingSpinner">
+            <div class="loading-spinner"></div>
+            <p class="mt-2">Loading more events...</p>
+        </div>
+    </div>
+
+    <!-- Delete Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Delete</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete this event? This action cannot be undone.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form id="deleteForm" method="POST">
+                        <button type="submit" class="btn btn-danger">Delete Event</button>
+                    </form>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
-    <script th:inline="javascript">
-        function confirmDelete(button) {
-            const eventId = button.getAttribute('data-event-id');
-            const deleteForm = document.getElementById('deleteForm');
-            deleteForm.action = `/events/${eventId}/delete`;
-            new bootstrap.Modal(document.getElementById('deleteModal')).show();
-        }
+<script th:inline="javascript">
+    function confirmDelete(button) {
+        const eventId = button.getAttribute('data-event-id');
+        const deleteForm = document.getElementById('deleteForm');
+        deleteForm.action = `/events/${eventId}/delete`;
+        new bootstrap.Modal(document.getElementById('deleteModal')).show();
+    }
 
-        // Initialize filters and search
-        document.addEventListener('DOMContentLoaded', function() {
-            const searchInput = document.getElementById('searchEvents');
-            const sortSelect = document.getElementById('sortEvents');
-            const filterButtons = document.querySelectorAll('[data-filter]');
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchEvents');
+        const sortSelect = document.getElementById('sortEvents');
+        const filterButtons = document.querySelectorAll('[data-filter]');
 
-            // Search functionality
-            searchInput.addEventListener('input', debounce(function() {
-                filterEvents();
-            }, 300));
+        searchInput.addEventListener('input', debounce(() => filterEvents(), 300));
+        sortSelect.addEventListener('change', () => filterEvents());
 
-            // Sort functionality
-            sortSelect.addEventListener('change', function() {
-                filterEvents();
-            });
-
-            // Filter buttons
-            filterButtons.forEach(button => {
-                button.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const filter = this.getAttribute('data-filter');
-                    filterEvents(filter);
-                });
+        filterButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                filterEvents(this.getAttribute('data-filter'));
             });
         });
+    });
 
-        // Debounce function
-        function debounce(func, wait) {
-            let timeout;
-            return function executedFunction(...args) {
-                const later = () => {
-                    clearTimeout(timeout);
-                    func(...args);
-                };
-                clearTimeout(timeout);
-                timeout = setTimeout(later, wait);
-            };
-        }
+    function debounce(func, wait) {
+        let timeout;
+        return function(...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(this, args), wait);
+        };
+    }
 
-        // Filter events function
-        function filterEvents(filter = 'all') {
-            const searchText = document.getElementById('searchEvents').value.toLowerCase();
-            const sortValue = document.getElementById('sortEvents').value;
-            const cards = document.querySelectorAll('.event-card');
+    function filterEvents(filter = 'all') {
+        const searchText = document.getElementById('searchEvents').value.toLowerCase();
+        const cards = document.querySelectorAll('.event-card');
 
-            cards.forEach(card => {
-                const title = card.querySelector('.card-title').textContent.toLowerCase();
-                const description = card.querySelector('.card-text').textContent.toLowerCase();
-                const venue = card.querySelector('.badge .fa-map-marker-alt').nextSibling.textContent.toLowerCase();
+        cards.forEach(card => {
+            const title = card.querySelector('.card-title').textContent.toLowerCase();
+            const desc = card.querySelector('.card-text').textContent.toLowerCase();
+            const venue = card.querySelector('.badge .fa-map-marker-alt').nextSibling.textContent.toLowerCase();
 
-                let showCard = true;
-
-                // Apply search filter
-                if (searchText) {
-                    showCard = title.includes(searchText) || 
-                              description.includes(searchText) || 
-                              venue.includes(searchText);
-                }
-
-                // Apply category filter
-                if (filter !== 'all') {
-                    // Add specific filter logic here
-                }
-
-                card.style.display = showCard ? '' : 'none';
-            });
-
-            // Apply sorting
-            const container = document.querySelector('.event-container');
-            const cardsArray = Array.from(cards);
-            cardsArray.sort((a, b) => {
-                // Add sorting logic here based on sortValue
-                return 0;
-            });
-
-            // Reattach sorted cards
-            cardsArray.forEach(card => container.appendChild(card));
-        }
-    </script>
+            const match = title.includes(searchText) || desc.includes(searchText) || venue.includes(searchText);
+            card.style.display = match ? '' : 'none';
+        });
+    }
+</script>
 </body>
 </html>
